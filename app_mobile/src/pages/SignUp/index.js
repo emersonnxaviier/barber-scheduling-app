@@ -5,6 +5,7 @@ import {
     SafeAreaView,
     Text,
     TouchableOpacity,
+    Alert,
 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -64,11 +65,11 @@ export default function SignUp() {
                 });
 
             } else {
-                alert(`Erro: ${resp.error}`);
+                Alert.alert(`Erro: ${resp.error}`);
             }
 
         } else {
-            alert('Prencha todos os campos!');
+            Alert.alert('Prencha todos os campos!');
         }
     }
 
