@@ -7,6 +7,8 @@ const stack = createStackNavigator();
 import Preload from './pages/Preload';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
+import Barber from './pages/Barber';
+
 
 import MainTab from './stacks/MainTab';
 
@@ -19,7 +21,7 @@ const Routes = () => {
             <NavigationContainer>
 
                 <stack.Navigator
-                    initialRouteName='MainTab'
+                    initialRouteName='SignUp'
                     screenOptions={{
                         headerShown: false
                     }}
@@ -29,6 +31,7 @@ const Routes = () => {
                     <stack.Screen name='SignIn' component={SignIn} />
                     <stack.Screen name='SignUp' component={SignUp} />
                     <stack.Screen name='MainTab' component={MainTab} />
+                    <stack.Screen name='Barber' component={Barber} />
 
                 </stack.Navigator>
 

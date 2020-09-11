@@ -7,10 +7,24 @@ import {
     Text,
 
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import Stars from './Stars';
 
 export default function BarberItems({ data }) {
+
+    const navigation = useNavigation();
+
+    const handleClick = () => {
+        navigation.navigate('Barber', {
+            id: data.id,
+            avatar: data.avatar,
+            name: data.name,
+            stars: data.stars
+        });
+    }
+
+
     return (
         <View style={styles.area}>
 
@@ -25,7 +39,7 @@ export default function BarberItems({ data }) {
 
                 <Stars stars={data.stars} showNumber={true} />
 
-                <TouchableOpacity style={styles.seeProfile}>
+                <TouchableOpacity style={styles.seeProfile} onPress={handleClick}>
 
                     <Text style={styles.textButton}> Ver Perfil </Text>
 
