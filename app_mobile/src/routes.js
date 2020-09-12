@@ -21,7 +21,7 @@ const Routes = () => {
             <NavigationContainer>
 
                 <stack.Navigator
-                    initialRouteName='SignUp'
+                    initialRouteName='MainTab'
                     screenOptions={{
                         headerShown: false
                     }}

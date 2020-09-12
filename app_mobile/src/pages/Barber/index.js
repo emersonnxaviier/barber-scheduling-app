@@ -9,11 +9,12 @@ import {
     SafeAreaView,
     TouchableOpacity,
     ActivityIndicator,
+    Dimensions,
 
 } from 'react-native';
 
 import api from '../../services/api';
-import Swiper from 'react-native-gesture-handler/Swipeable';
+import Carousel from 'react-native-looped-carousel';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import Stars from '../../components/Stars';
@@ -34,9 +35,11 @@ export default function Barber() {
     });
     const [loading, setLoading] = useState(false);
 
+
     function handleBackButton() {
         navigation.goBack();
     }
+
 
     useEffect(() => {
 
@@ -66,27 +69,31 @@ export default function Barber() {
                 {
                     userInfo.photos && userInfo.photos.length > 0
                         ?
-                        <Swiper
+                        <Carousel
                             style={styles.swiper}
-                            dot={<View style={styles.swipeDot} />}
-                            activeDot={<View style={styles.swipeDotActive} />}
-                            paginationStyle={{ top: 15, right: 15, bottom: null, left: null }}
-                            autoPlay={true} // para ficar mudando a foto
+                            delay={3000}
+                            autoplay={true}
+                            pageInfo
                         >
-                            {userInfo.photos.map((item, index) => (
-                                <View
-                                    key={index}
-                                    style={styles.swipeItem}
-                                >
-                                    <Image
-                                        style={styles.swipeImage}
-                                        source={{ uri: item.url }}
-                                        resizeMode='cover'
-                                    />
-                                </View>
-                            ))}
-                        </Swiper>
+                            {
+
+                                userInfo.photos.map((item, index) => (
+                                    <View
+                                        key={index}
+                                        style={styles.swipeItem}
+                                    >
+                                        <Image
+                                            style={styles.swipeImage}
+                                            source={{ uri: item.url }}
+                                            resizeMode='cover'
+                                        />
+                                    </View>
+                                ))
+                            }
+
+                        </Carousel>
                         :
+
                         <View style={styles.fakeSwiper}>
 
                         </View>
@@ -177,6 +184,8 @@ export default function Barber() {
     );
 }
 
+const { width: screenWidth } = Dimensions.get('screen');
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -185,9 +194,13 @@ const styles = StyleSheet.create({
     scroll: {
         flex: 1,
     },
+
     swiper: {
         height: 240,
+        flex: 1,
+        overflow: 'visible',
     },
+
     fakeSwiper: {
         height: 180,
         backgroundColor: '#63c2d1'
