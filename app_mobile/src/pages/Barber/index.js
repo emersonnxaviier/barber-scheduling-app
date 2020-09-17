@@ -18,9 +18,14 @@ import Carousel from 'react-native-looped-carousel';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import Stars from '../../components/Stars';
+import Modal from '../../components/Modal';
 
 import FavoriteIcon from '../../assets/favorite.svg';
+import FavoriteFullIcon from '../../assets/favorite_full.svg';
 import BackIcon from '../../assets/back.svg';
+//import NavPrevIcon from '../../assets/nav_prev.svg';
+//import NavNextIcon from '../../assets/nav_next.svg';
+
 
 export default function Barber() {
 
@@ -34,12 +39,24 @@ export default function Barber() {
         stars: route.params.stars
     });
     const [loading, setLoading] = useState(false);
+    const [favorited, setFavorited] = useState(false);
+    const [selectedServices, setSelectedServices] = useState(null); // para indentificar qual serviço foi selecionado.
+    const [showModal, setShowModal] = useState(false); // para controlar a exibição do modal.
 
 
     function handleBackButton() {
         navigation.goBack();
     }
 
+    function handleFavClick() {
+        setFavorited(!favorited);
+        api.setFavorite(userInfo.id);
+    }
+
+    function handleServiceChoose(index) {
+        setSelectedServices(index);
+        setShowModal(true);
+    }
 
     useEffect(() => {
 
@@ -51,6 +68,7 @@ export default function Barber() {
 
             if (json.error == '') {
                 setUserInfo(json.data);
+                setFavorited(json.data.favorited);
             }
             else {
                 Alert.alert('Erro: ' + json.error);
@@ -71,12 +89,15 @@ export default function Barber() {
                         ?
                         <Carousel
                             style={styles.swiper}
-                            delay={3000}
+                            delay={2000}
                             autoplay={true}
-                            pageInfo
+                            pageInfo={true}
+                            swipe={true}
+                            bullets={true}
+                            bulletsContainerStyle={{ top: 10, right: -250 }}
+
                         >
                             {
-
                                 userInfo.photos.map((item, index) => (
                                     <View
                                         key={index}
@@ -113,8 +134,14 @@ export default function Barber() {
                         </View>
 
 
-                        <TouchableOpacity style={styles.userFavorite}>
-                            <FavoriteIcon width='24' height='24' fill='#ff0000' />
+                        <TouchableOpacity style={styles.userFavorite} onPress={handleFavClick}>
+                            {
+                                favorited
+                                    ?
+                                    <FavoriteFullIcon width='24' height='24' fill='#ff0000' />
+                                    :
+                                    <FavoriteIcon width='24' height='24' fill='#ff0000' />
+                            }
                         </TouchableOpacity>
                     </View>
 
@@ -145,12 +172,13 @@ export default function Barber() {
                                         </Text>
 
                                         <Text style={styles.servicesPrice}>
-                                            R$ {item.price}
+                                            R$ {item.price.toFixed(2)}
                                         </Text>
                                     </View>
 
                                     <TouchableOpacity
                                         style={styles.chooseButton}
+                                        onPress={() => handleServiceChoose(index)}
                                     >
                                         <Text style={styles.textChooseButton}>
                                             Agendar
@@ -165,8 +193,40 @@ export default function Barber() {
                         </View>
                     }
 
-                    <View style={styles.testimonialArea}>
-                    </View>
+                    {userInfo.testimonials && userInfo.testimonials.length > 0 &&
+
+                        <View style={styles.testimonialArea}>
+                            <Carousel
+                                style={styles.carouselTestimonials}
+                                pageStyle={{ height: 110 }}
+                                arrows={true}
+                                autoplay={true}
+                                delay={5000}
+                                rightArrowText='RRRRRRRR'
+                                leftArrowText='LLLLLLLL'
+                                leftArrowStyle={{ backgroundColor: '#ddd' }}
+                                rightArrowStyle={{ backgroundColor: '#ddd' }}
+                            >
+                                {
+                                    userInfo.testimonials.map((item, index) => (
+
+                                        <View style={styles.testimonialItem} key={index}>
+
+                                            <View style={styles.testimonialInfo}>
+                                                <Text style={styles.testimonialName}> {item.name} </Text>
+                                                <Stars stars={item.rate} showNumber={false} />
+                                            </View>
+
+                                            <Text style={styles.testimonialBody}>
+                                                {item.body}
+                                            </Text>
+
+                                        </View>
+                                    ))
+                                }
+                            </Carousel>
+                        </View>
+                    }
 
                 </View>
 
@@ -177,14 +237,19 @@ export default function Barber() {
                 style={styles.backButton}
             >
                 <BackIcon width='44' height='44' fill='#FFF' />
-
             </TouchableOpacity>
+
+
+            <Modal
+                show={showModal}
+                setShow={setShowModal}
+                user={userInfo}
+                service={selectedServices}
+            />
 
         </SafeAreaView>
     );
 }
-
-const { width: screenWidth } = Dimensions.get('screen');
 
 const styles = StyleSheet.create({
     container: {
@@ -200,7 +265,6 @@ const styles = StyleSheet.create({
         flex: 1,
         overflow: 'visible',
     },
-
     fakeSwiper: {
         height: 180,
         backgroundColor: '#63c2d1'
@@ -210,7 +274,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 60,
         marginTop: -50,
         minHeight: 400, //altura minima
-
     },
     servicesArea: {
         marginTop: 40,
@@ -254,21 +317,35 @@ const styles = StyleSheet.create({
         color: '#FFF',
     },
     testimonialArea: {
-
+        marginTop: 30,
+        marginBottom: 50,
     },
-    swipeDot: {
-        height: 10,
-        width: 10,
-        backgroundColor: '#fff',
-        borderRadius: 5,
-        margin: 3,
+    carouselTestimonials: {
+        height: 110,
     },
-    swipeDotActive: {
-        height: 10,
-        width: 10,
-        backgroundColor: '#000',
-        borderRadius: 5,
-        margin: 3,
+    testimonialItem: {
+        backgroundColor: '#268596',
+        padding: 5,
+        borderRadius: 10,
+        height: 100,
+        justifyContent: 'center',
+        // alignItems: 'center',
+        marginLeft: 50,
+        marginRight: 50,
+    },
+    testimonialInfo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 5,
+    },
+    testimonialName: {
+        color: '#FFF',
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    testimonialBody: {
+        color: '#FFF',
+        fontSize: 13,
     },
     swipeItem: {
         flex: 1,
@@ -306,13 +383,13 @@ const styles = StyleSheet.create({
         height: 40,
         backgroundColor: '#FFF',
         borderWidth: 2,
-        borderColor: '#999',
+        borderColor: '#F5F2EE',
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 20,
         marginLeft: 20,
-        marginTop: 15
+        marginTop: 70
     },
     backButton: {
         position: 'absolute',
